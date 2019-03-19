@@ -1,6 +1,6 @@
 <?php
  
-namespace yjyer\phptools;
+namespace yjyer;
 
 /**
  * 工具类
