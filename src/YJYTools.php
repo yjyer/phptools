@@ -14,7 +14,7 @@ class YJYTools
      * @param  string  $userAget 可选参数 用户浏览器useAgent头
      * @return boolean
      */
-    public static function is_weixin($userAget = '')
+    public static function isWeixin($userAget = '')
     {
         if (!$userAget) {
             $userAget = $_SERVER['HTTP_USER_AGENT'];
@@ -29,7 +29,7 @@ class YJYTools
      * 判断是否移动端浏览器
      * @return boolean
      */
-    public static function is_mobile()
+    public static function isMobile()
     {
         // 如果有HTTP_X_WAP_PROFILE则一定是移动设备
         if (isset($_SERVER['HTTP_X_WAP_PROFILE'])) {
@@ -90,18 +90,124 @@ class YJYTools
         return false;
     }
 
+    //得到手机系统类型
+    public static function getDeviceType()
+    {
+        //全部变成小写字母
+        $agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+        $type  = 'other';
+        //分别进行判断
+        if (strpos($agent, 'iphone') || strpos($agent, 'ipad')) {
+            $type = 'ios';
+        }
+
+        if (strpos($agent, 'android')) {
+            $type = 'android';
+        }
+        return $type;
+    }
+
+    /**
+     * 得到来源
+     * @return int 来源ID
+     */
+    public static function getAgentType()
+    {
+        //获取软件类别
+        $app_type = 'other';
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'icroMessenger') !== false) {
+            $app_type = 'wx';
+        }
+
+        //项目APP
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'YJY_APP') !== false) {
+            $app_type = 'yjyApp';
+        }
+
+        //获取手机类别
+        $device_type = self::getDeviceType();
+
+        //微信-苹果
+        if ($app_type == 'wx' && $device_type == 'ios') {
+            return 1;
+        }
+        //微信-安卓
+        if ($app_type == 'wx' && $device_type == 'android') {
+            return 2;
+        }
+        //微信-其他
+        if ($app_type == 'wx' && $device_type == 'other') {
+            return 3;
+        }
+
+        //项目APP-苹果
+        if ($app_type == 'yjyApp' && $device_type == 'ios') {
+            return 4;
+        }
+        //项目APP-安卓
+        if ($app_type == 'yjyApp' && $device_type == 'android') {
+            return 5;
+        }
+        //项目APP其他
+        if ($app_type == 'yjyApp' && $device_type == 'other') {
+            return 6;
+        }
+
+        //手机网页-苹果
+        if ($app_type == 'other' && $device_type == 'ios') {
+            return 7;
+        }
+        //手机网页-安卓
+        if ($app_type == 'other' && $device_type == 'android') {
+            return 8;
+        }
+        //手机网页其他
+        if ($app_type == 'other' && $device_type == 'other') {
+            return 9;
+        }
+
+        //其他设备
+        return 10;
+
+    }
+
+    /**
+     * 得到当前浏览器
+     *
+     * @return string
+     */
+    public static function getBrowser()
+    {
+        $agent = $_SERVER["HTTP_USER_AGENT"];
+        if (strpos($agent, 'MSIE') !== false || strpos($agent, 'rv:11.0')) //ie11判断
+        {
+            return "ie";
+        } else if (strpos($agent, 'Firefox') !== false) {
+            return "firefox";
+        } else if (strpos($agent, 'Chrome') !== false) {
+            return "chrome";
+        } else if (strpos($agent, 'Opera') !== false) {
+            return 'opera';
+        } else if ((strpos($agent, 'Chrome') == false) && strpos($agent, 'Safari') !== false) {
+            return 'safari';
+        } else {
+            return 'unknown';
+        }
+
+    }
+
     /**
      * 用户名加星隐藏核心信息
      * @param  string $nickname 用户名、昵称
      * @return string 隐藏处理后的用户名、昵称
      */
-    public static function hide_name($nickname)
+    public static function hideName($nickname)
     {
         if (mb_strlen($nickname) <= 3) {
             return '***';
         }
         $begin = self::mbsubstr($nickname, 0, 1, 'utf8');
-        $end = self::mbsubstr($nickname, -1, 1, 'utf8');
+        $end   = self::mbsubstr($nickname, -1, 1, 'utf8');
         return $begin . '***' . $end;
     }
 
@@ -110,7 +216,7 @@ class YJYTools
      * @param  string $ip_v4 ipV4的地址
      * @return string 处理隐藏后的地址
      */
-    public static function hide_ipv4($ip_v4)
+    public static function hideIpv4($ip_v4)
     {
         $ip = explode('.', $ip_v4);
         if (count($ip) == 4) {
@@ -126,7 +232,7 @@ class YJYTools
      * @param  mixed $timestamp Unix时间戳
      * @return boolean
      */
-    public static function time_ago($timestamp)
+    public static function timeAgo($timestamp)
     {
         $etime = time() - $timestamp;
         if ($etime < 1) {
@@ -135,12 +241,12 @@ class YJYTools
 
         $interval = array(
             12 * 30 * 24 * 60 * 60 => '年前 (' . date('Y-m-d', $timestamp) . ')',
-            30 * 24 * 60 * 60 => '个月前 (' . date('m-d', $timestamp) . ')',
-            7 * 24 * 60 * 60 => '周前 (' . date('m-d', $timestamp) . ')',
-            24 * 60 * 60 => '天前',
-            60 * 60 => '小时前',
-            60 => '分钟前',
-            1 => '秒前',
+            30 * 24 * 60 * 60      => '个月前 (' . date('m-d', $timestamp) . ')',
+            7 * 24 * 60 * 60       => '周前 (' . date('m-d', $timestamp) . ')',
+            24 * 60 * 60           => '天前',
+            60 * 60                => '小时前',
+            60                     => '分钟前',
+            1                      => '秒前',
         );
         foreach ($interval as $secs => $str) {
             $d = $etime / $secs;
@@ -155,7 +261,7 @@ class YJYTools
      * 判断是否SSL协议
      * @return boolean
      */
-    public static function is_ssl()
+    public static function isSsl()
     {
         if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
             return true;
@@ -171,9 +277,9 @@ class YJYTools
      * @param  boolean $adv 是否进行高级模式获取（有可能被伪装）---代理情况
      * @return mixed
      */
-    public static function get_client_ip($type = 0, $adv = false)
+    public static function getClientIp($type = 0, $adv = false)
     {
-        $type = $type ? 1 : 0;
+        $type      = $type ? 1 : 0;
         static $ip = null;
         if ($ip !== null) {
             return $ip[$type];
@@ -198,7 +304,7 @@ class YJYTools
         }
         // IP地址合法验证
         $long = sprintf("%u", ip2long($ip));
-        $ip = $long ? array($ip, $long) : array('0.0.0.0', 0);
+        $ip   = $long ? array($ip, $long) : array('0.0.0.0', 0);
         return $ip[$type];
     }
 
@@ -254,7 +360,7 @@ class YJYTools
      * @param  int     $expiry    密钥有效期 单位：秒 默认0为永不过期
      * @return string 空字符串表示解密失败|密文已过期
      */
-    public static function reversible_crypt($string, $isEncode = false, $key = 'jjonline', $expiry = 0)
+    public static function reversibleCrypt($string, $isEncode = false, $key = 'jjonline', $expiry = 0)
     {
         $ckey_length = 4;
         // 密匙
@@ -266,31 +372,31 @@ class YJYTools
         // 密匙c用于变化生成的密文
         $keyc = $ckey_length ? ($isEncode ? substr($string, 0, $ckey_length) : substr(md5(microtime()), -$ckey_length)) : '';
         // 参与运算的密匙
-        $cryptkey = $keya . md5($keya . $keyc);
+        $cryptkey   = $keya . md5($keya . $keyc);
         $key_length = strlen($cryptkey);
         // 明文，前10位用来保存时间戳，解密时验证数据有效性，10到26位用来保存$keyb(密匙b)，解密时会通过这个密匙验证数据完整性
         // 如果是解码的话，会从第$ckey_length位开始，因为密文前$ckey_length位保存 动态密匙，以保证解密正确
-        $string = $isEncode ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0) . substr(md5($string . $keyb), 0, 16) . $string;
+        $string        = $isEncode ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0) . substr(md5($string . $keyb), 0, 16) . $string;
         $string_length = strlen($string);
-        $result = '';
-        $box = range(0, 255);
-        $rndkey = array();
+        $result        = '';
+        $box           = range(0, 255);
+        $rndkey        = array();
         // 产生密匙簿
         for ($i = 0; $i <= 255; $i++) {
             $rndkey[$i] = ord($cryptkey[$i % $key_length]);
         }
         // 用固定的算法，打乱密匙簿，增加随机性，好像很复杂，实际上并不会增加密文的强度
         for ($j = $i = 0; $i < 256; $i++) {
-            $j = ($j + $box[$i] + $rndkey[$i]) % 256;
-            $tmp = $box[$i];
+            $j       = ($j + $box[$i] + $rndkey[$i]) % 256;
+            $tmp     = $box[$i];
             $box[$i] = $box[$j];
             $box[$j] = $tmp;
         }
         // 核心加解密部分
         for ($a = $j = $i = 0; $i < $string_length; $i++) {
-            $a = ($a + 1) % 256;
-            $j = ($j + $box[$a]) % 256;
-            $tmp = $box[$a];
+            $a       = ($a + 1) % 256;
+            $j       = ($j + $box[$a]) % 256;
+            $tmp     = $box[$a];
             $box[$a] = $box[$j];
             $box[$j] = $tmp;
             // 从密匙簿得出密匙进行异或，再转成字符
@@ -314,7 +420,7 @@ class YJYTools
     }
 
     /**
-     * 对时间有效性的数据进行可逆的加密，对reversible_crypt方法的可识别封装
+     * 对时间有效性的数据进行可逆的加密，对reversibleCrypt方法的可识别封装
      * @param  string  $string 待加密字符串
      * @param  string  $key    加密秘钥
      * @param  integer $expiry 加密的密文失效时间，0默认表示：永不失效
@@ -322,7 +428,7 @@ class YJYTools
      */
     public static function transfer_encrypt($string, $key = 'jjonline', $expiry = 0)
     {
-        return self::reversible_crypt($string, false, $key, $expiry);
+        return self::reversibleCrypt($string, false, $key, $expiry);
     }
 
     /**
@@ -338,9 +444,9 @@ class YJYTools
      * @param  string $key    解密秘钥
      * @return string
      */
-    public static function transfer_decrypt($string, $key = 'jjonline')
+    public static function transferDecrypt($string, $key = 'jjonline')
     {
-        return self::reversible_crypt($string, true, $key);
+        return self::reversibleCrypt($string, true, $key);
     }
 
     /**
@@ -358,10 +464,10 @@ class YJYTools
         } elseif (function_exists('iconv_substr')) {
             $slice = iconv_substr($str, $start, $length, $charset);
         } else {
-            $re['utf-8'] = "/[\x01-\x7f]|[\xc2-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xff][\x80-\xbf]{3}/";
+            $re['utf-8']  = "/[\x01-\x7f]|[\xc2-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xff][\x80-\xbf]{3}/";
             $re['gb2312'] = "/[\x01-\x7f]|[\xb0-\xf7][\xa0-\xfe]/";
-            $re['gbk'] = "/[\x01-\x7f]|[\x81-\xfe][\x40-\xfe]/";
-            $re['big5'] = "/[\x01-\x7f]|[\x81-\xfe]([\x40-\x7e]|\xa1-\xfe])/";
+            $re['gbk']    = "/[\x01-\x7f]|[\x81-\xfe][\x40-\xfe]/";
+            $re['big5']   = "/[\x01-\x7f]|[\x81-\xfe]([\x40-\x7e]|\xa1-\xfe])/";
             preg_match_all($re[$charset], $str, $match);
             $slice = join("", array_slice($match[0], $start, $length));
         }
@@ -378,7 +484,7 @@ class YJYTools
      * @param string $addChars 额外添加进去的字符
      * @return string
      */
-    public static function get_rand_string($len = 6, $type = '', $addChars = '')
+    public static function getRandString($len = 6, $type = '', $addChars = '')
     {
         $str = '';
         switch ($type) {
@@ -402,12 +508,13 @@ class YJYTools
                 $chars = 'ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789' . $addChars;
                 break;
         }
-        if ($len > 10) { //位数过长重复字符串一定次数
+        if ($len > 10) {
+            //位数过长重复字符串一定次数
             $chars = $type == 1 ? str_repeat($chars, $len) : str_repeat($chars, 5);
         }
         if ($type != 4) {
             $chars = str_shuffle($chars);
-            $str = substr($chars, 0, $len);
+            $str   = substr($chars, 0, $len);
         } else {
             // 中文随机字
             for ($i = 0; $i < $len; $i++) {
@@ -428,7 +535,7 @@ class YJYTools
      * @param string $type
      * @return void
      */
-    public static function array_sort($arr, $keys, $type = 'desc')
+    public static function arraySort($arr, $keys, $type = 'desc')
     {
         $keysvalue = $new_array = [];
         foreach ($arr as $k => $v) {
@@ -510,7 +617,7 @@ class YJYTools
      * @param array $array
      * @return void
      */
-    public static function in_array_case($value, $array)
+    public static function inArrayCase($value, $array)
     {
         return in_array(strtolower($value), array_map('strtolower', $array));
     }
@@ -547,7 +654,7 @@ class YJYTools
      * @return string 完整的时间显示
      * @author huajie <banhuajie@163.com>
      */
-    public static function time_format($time = null, $format = 'Y-m-d H:i')
+    public static function timeFormat($time = null, $format = 'Y-m-d H:i')
     {
         if (empty($time)) {
             return '';
@@ -564,7 +671,7 @@ class YJYTools
      */
     public static function day_format($time = null)
     {
-        return time_format($time, 'Y-m-d');
+        return timeFormat($time, 'Y-m-d');
     }
 
     /**
@@ -574,7 +681,7 @@ class YJYTools
      */
     public static function hour_format($time = null)
     {
-        return time_format($time, 'H:i');
+        return timeFormat($time, 'H:i');
     }
 
     /**
@@ -582,7 +689,7 @@ class YJYTools
      * @param [type] $time
      * @return void
      */
-    public static function time_offset($time = null)
+    public static function timeOffset($time = null)
     {
         if (empty($time)) {
             return '00:00';
@@ -613,7 +720,7 @@ class YJYTools
         // sTime=源时间，cTime=当前时间，dTime=时间差
         $cTime = NOW_TIME;
         $dTime = $cTime - $sTime;
-        $dDay = intval(date("z", $cTime)) - intval(date("z", $sTime));
+        $dDay  = intval(date("z", $cTime)) - intval(date("z", $sTime));
         // $dDay = intval($dTime/3600/24);
         $dYear = intval(date("Y", $cTime)) - intval(date("Y", $sTime));
         // normal：n秒前，n分钟前，n小时前，日期
@@ -674,7 +781,7 @@ class YJYTools
      * @param [type] $number
      * @return void
      */
-    public static function week_name($number = null)
+    public static function weekName($number = null)
     {
         if ($number === null) {
             $number = date('w');
@@ -705,7 +812,7 @@ class YJYTools
 
         $number = date('w', strtotime($day));
 
-        return $this->week_name($number);
+        return $this->weekName($number);
     }
 
     /**
@@ -717,8 +824,8 @@ class YJYTools
     {
 
         $time = (int) substr($time, 0, 10);
-        $int = time() - $time;
-        $str = '';
+        $int  = time() - $time;
+        $str  = '';
         if ($int <= 2) {
             $str = sprintf('刚刚', $int);
         } elseif ($int < 60) {
