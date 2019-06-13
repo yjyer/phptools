@@ -654,14 +654,42 @@ class YJYTools
      * @return string 完整的时间显示
      * @author huajie <banhuajie@163.com>
      */
-    public static function timeFormat($time = null, $format = 'Y-m-d H:i')
+    public static function timeFormat($time = null, $format = 1)
     {
         if (empty($time)) {
             return '';
         }
 
+        //定义时间格式字典
+        $timeFormats = [
+            '1' => 'Y-m-d H:i:s',
+            '2' => 'Y-m-d H:i',
+            '3' => 'Y-m-d H',
+            '4' => 'Y-m-d',
+            '5' => 'Y/m/d H:i:s',
+            '6' => 'Y/m/d H:i',
+            '7' => 'Y/m/d H',
+            '8' => 'Y/m/d',
+        ];
+
+        $timeFormat = '';
+        //数组
+        if (is_array($format)) {
+            if (!empty($format['time_format'])) {
+                $timeFormat = empty($timeFormats[$format['time_format']]) ? 1 : $timeFormats[$format['time_format']];
+            }
+        }
+        //字符串
+        else if (is_string($format)) {
+            $timeFormat = $format;
+        }
+        //数字
+        else {
+            $timeFormat = !empty($timeFormats[$format]) ? $timeFormats[$format] : $timeFormats[1];
+        }
+
         $time = $time === null ? NOW_TIME : intval($time);
-        return date($format, $time);
+        return date(empty($timeFormat) ? $timeFormats[1] : $timeFormat, $time);
     }
 
     /**
