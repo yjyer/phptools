@@ -652,9 +652,8 @@ class YJYTools
      * 时间戳格式化
      * @param int $time
      * @return string 完整的时间显示
-     * @author huajie <banhuajie@163.com>
      */
-    public static function timeFormat($time = null, $format = 1)
+    public static function timeFormat($time = null, $format = 1, $field = '')
     {
         if (empty($time)) {
             return '';
@@ -662,21 +661,28 @@ class YJYTools
 
         //定义时间格式字典
         $timeFormats = [
-            '1' => 'Y-m-d H:i:s',
-            '2' => 'Y-m-d H:i',
-            '3' => 'Y-m-d H',
-            '4' => 'Y-m-d',
-            '5' => 'Y/m/d H:i:s',
-            '6' => 'Y/m/d H:i',
-            '7' => 'Y/m/d H',
-            '8' => 'Y/m/d',
+            '1'  => 'Y-m-d H:i:s',
+            '2'  => 'Y-m-d H:i',
+            '3'  => 'Y-m-d H',
+            '4'  => 'Y-m-d',
+            '5'  => 'Y/m/d H:i:s',
+            '6'  => 'Y/m/d H:i',
+            '7'  => 'Y/m/d H',
+            '8'  => 'Y/m/d',
+            '9'  => 'm/d H:i:s',
+            '10' => 'm/d H:i',
+            '11' => 'm/d H',
         ];
 
         $timeFormat = '';
+        $key_prefix = 'time_format';
         //数组
         if (is_array($format)) {
-            if (!empty($format['time_format'])) {
-                $timeFormat = empty($timeFormats[$format['time_format']]) ? 1 : $timeFormats[$format['time_format']];
+            if ($field != '' && !empty($format[$key_prefix . '_' . $field])) {
+                $key        = $format[$key_prefix . '_' . $field];
+                $timeFormat = empty($timeFormats[$key]) ? 1 : $timeFormats[$key];
+            } else if (!empty($format[$key_prefix])) {
+                $timeFormat = empty($timeFormats[$format[$key_prefix]]) ? 1 : $timeFormats[$format[$key_prefix]];
             }
         }
         //字符串
