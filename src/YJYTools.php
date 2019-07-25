@@ -694,7 +694,7 @@ class YJYTools
             $timeFormat = !empty($timeFormats[$format]) ? $timeFormats[$format] : $timeFormats[1];
         }
 
-        $time = $time === null ? NOW_TIME : intval($time);
+        $time = $time === null ? time() : intval($time);
         return date(empty($timeFormat) ? $timeFormats[1] : $timeFormat, $time);
     }
 
@@ -752,7 +752,7 @@ class YJYTools
         }
 
         // sTime=源时间，cTime=当前时间，dTime=时间差
-        $cTime = NOW_TIME;
+        $cTime = time();
         $dTime = $cTime - $sTime;
         $dDay  = intval(date("z", $cTime)) - intval(date("z", $sTime));
         // $dDay = intval($dTime/3600/24);
