@@ -7,7 +7,6 @@ namespace yjyer;
  */
 class YJYTools
 {
-
     /**
      *
      * 判断是否微信浏览器内打开
@@ -39,7 +38,7 @@ class YJYTools
         if (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")) {
             return true;
         }
-        // userAgent匹配
+        //userAgent匹配
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $clientkeywords = array(
                 'nokia',
