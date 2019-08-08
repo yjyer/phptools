@@ -934,4 +934,109 @@ class YJYTools
         return implode($glue, $arr);
     }
 
+    /**
+     * 将一个字符串部分字符用*替代隐藏.
+     *
+     * @param string $string 待转换的字符串
+     * @param int    $bengin 起始位置，从0开始计数，当$type=4时，表示左侧保留长度
+     * @param int    $len    需要转换成*的字符个数，当$type=4时，表示右侧保留长度
+     * @param int    $type   转换类型：0，从左向右隐藏；
+     *                       1，从右向左隐藏；
+     *                       2，从指定字符位置分割前由右向左隐藏；
+     *                       3，从指定字符位置分割后由左向右隐藏；
+     *                       4，保留首末指定字符串
+     * @param string $glue   分割符
+     *
+     * @return string 处理后的字符串
+     */
+    public function hideStr($string, $bengin = 0, $len = 4, $type = 2, $glue = '@')
+    {
+        if (empty($string)) {
+            return false;
+        }
+
+        $array = [];
+        if (0 == $type || 1 == $type || 4 == $type) {
+            $strlen = $length = mb_strlen($string);
+            while ($strlen) {
+                $array[] = mb_substr($string, 0, 1, 'utf8');
+                $string = mb_substr($string, 1, $strlen, 'utf8');
+                $strlen = mb_strlen($string);
+            }
+        }
+        if (0 == $type) {
+            for ($i = $bengin; $i < ($bengin + $len); ++$i) {
+                if (isset($array[$i])) {
+                    $array[$i] = '*';
+                }
+            }
+            $string = implode('', $array);
+        } else {
+            if (1 == $type) {
+                $array = array_reverse($array);
+                for ($i = $bengin; $i < ($bengin + $len); ++$i) {
+                    if (isset($array[$i])) {
+                        $array[$i] = '*';
+                    }
+                }
+                $string = implode('', array_reverse($array));
+            } else {
+                if (2 == $type) {
+                    $array = explode($glue, $string);
+                    $array[0] = hideStr($array[0], $bengin, $len, 1);
+                    $string = implode($glue, $array);
+                } else {
+                    if (3 == $type) {
+                        $array = explode($glue, $string);
+                        $array[1] = hideStr($array[1], $bengin, $len, 0);
+                        $string = implode($glue, $array);
+                    } else {
+                        if (4 == $type) {
+                            $left = $bengin;
+                            $right = $len;
+                            $tem = [];
+                            for ($i = 0; $i < ($length - $right); ++$i) {
+                                if (isset($array[$i])) {
+                                    $tem[] = $i >= $left ? '*' : $array[$i];
+                                }
+                            }
+                            $array = array_chunk(array_reverse($array), $right);
+                            $array = array_reverse($array[0]);
+                            for ($i = 0; $i < $right; ++$i) {
+                                $tem[] = $array[$i];
+                            }
+                            $string = implode('', $tem);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $string;
+    }
+    
+    /**
+     * 字段文字内容隐藏处理方法.
+     *
+     * @param $string
+     * @param int $type 1 身份证 2 手机号 3 银行卡
+     *
+     * @return string
+     */
+    public function hidePrivacyInfo($string, $type = 1)
+    {
+        if (empty($string)) {
+            return $string;
+        }
+        if (1 == $type) {
+            $string = substr($string, 0, 3).str_repeat('*', 12).substr($string, strlen($string) - 4); //身份证
+        } elseif (2 == $type) {
+            $string = substr($string, 0, 3).str_repeat('*', 5).substr($string, strlen($string) - 4); //手机号
+        } elseif (3 == $type) {
+            $string = str_repeat('*', strlen($string) - 4).substr($string, strlen($string) - 4); //银行卡
+        }
+
+        return $string;
+    }
+
 }
