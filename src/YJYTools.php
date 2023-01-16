@@ -167,7 +167,6 @@ class YJYTools
 
         //其他设备
         return 10;
-
     }
 
     /**
@@ -192,7 +191,6 @@ class YJYTools
         } else {
             return 'unknown';
         }
-
     }
 
     /**
@@ -340,7 +338,6 @@ class YJYTools
         } else {
             return $output;
         }
-
     }
 
     /**
@@ -456,8 +453,10 @@ class YJYTools
      * @param  string $charset 编码格式，默认utf8
      * @return string
      */
-    public static function mbsubstr($str, $start = 0, $length, $charset = "utf-8")
+    public static function mbsubstr($str = '', $start = 0, $length = 1, $charset = "utf-8")
     {
+        if (empty($str)) return '***';
+
         if (function_exists("mb_substr")) {
             $slice = mb_substr($str, $start, $length, $charset);
         } elseif (function_exists('iconv_substr')) {
@@ -704,7 +703,7 @@ class YJYTools
      */
     public static function day_format($time = null)
     {
-        return timeFormat($time, 'Y-m-d');
+        return self::timeFormat($time, 'Y-m-d');
     }
 
     /**
@@ -714,7 +713,7 @@ class YJYTools
      */
     public static function hour_format($time = null)
     {
-        return timeFormat($time, 'H:i');
+        return self::timeFormat($time, 'H:i');
     }
 
     /**
@@ -845,12 +844,12 @@ class YJYTools
 
         $number = date('w', strtotime($day));
 
-        return $this->weekName($number);
+        return self::weekName($number);
     }
 
     /**
      * 传入时间戳,计算距离现在的时间
-     * @param  number $time 时间戳
+     * @param  string $time 时间戳
      * @return string     返回多少以前
      */
     public static function wordTime($time)
@@ -873,7 +872,6 @@ class YJYTools
             $str = date('Y-m-d H:i:s', $time);
         }
         return $str;
-
     }
 
     //============================================
@@ -983,12 +981,12 @@ class YJYTools
             } else {
                 if (2 == $type) {
                     $array = explode($glue, $string);
-                    $array[0] = hideStr($array[0], $bengin, $len, 1);
+                    $array[0] = self::hideStr($array[0], $bengin, $len, 1);
                     $string = implode($glue, $array);
                 } else {
                     if (3 == $type) {
                         $array = explode($glue, $string);
-                        $array[1] = hideStr($array[1], $bengin, $len, 0);
+                        $array[1] = self::hideStr($array[1], $bengin, $len, 0);
                         $string = implode($glue, $array);
                     } else {
                         if (4 == $type) {
@@ -1014,7 +1012,7 @@ class YJYTools
 
         return $string;
     }
-    
+
     /**
      * 字段文字内容隐藏处理方法.
      *
@@ -1029,14 +1027,13 @@ class YJYTools
             return $string;
         }
         if (1 == $type) {
-            $string = substr($string, 0, 3).str_repeat('*', 12).substr($string, strlen($string) - 4); //身份证
+            $string = substr($string, 0, 3) . str_repeat('*', 12) . substr($string, strlen($string) - 4); //身份证
         } elseif (2 == $type) {
-            $string = substr($string, 0, 3).str_repeat('*', 5).substr($string, strlen($string) - 4); //手机号
+            $string = substr($string, 0, 3) . str_repeat('*', 5) . substr($string, strlen($string) - 4); //手机号
         } elseif (3 == $type) {
-            $string = str_repeat('*', strlen($string) - 4).substr($string, strlen($string) - 4); //银行卡
+            $string = str_repeat('*', strlen($string) - 4) . substr($string, strlen($string) - 4); //银行卡
         }
 
         return $string;
     }
-
 }
