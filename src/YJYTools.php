@@ -89,7 +89,11 @@ class YJYTools
         return false;
     }
 
-    //得到手机系统类型
+    /**
+     * 得到手机系统类型
+     *
+     * @return void
+     */
     public static function getDeviceType()
     {
         //全部变成小写字母
@@ -947,7 +951,7 @@ class YJYTools
      *
      * @return string 处理后的字符串
      */
-    public function hideStr($string, $bengin = 0, $len = 4, $type = 2, $glue = '@')
+    public static function hideStr($string, $bengin = 0, $len = 4, $type = 2, $glue = '@')
     {
         if (empty($string)) {
             return false;
@@ -1021,7 +1025,7 @@ class YJYTools
      *
      * @return string
      */
-    public function hidePrivacyInfo($string, $type = 1)
+    public static function hidePrivacyInfo($string, $type = 1)
     {
         if (empty($string)) {
             return $string;
@@ -1035,5 +1039,115 @@ class YJYTools
         }
 
         return $string;
+    }
+
+
+    /**
+     * xml转换成数组
+     *
+     * @param [type] $xml
+     * @return void
+     */
+    public static function  xmlToArray($xml): array
+    {
+        try {
+
+            //禁止引用外部xml实体
+            //判断php版本小于8则禁止引用外部xml实体
+            if (PHP_VERSION_ID < 80000) {
+                libxml_disable_entity_loader(true);
+            }
+
+            //替换掉xml开头多余的文本，以免报错
+            $xml = str_replace('<?xml version="1.0" encoding="gbk"?>', '', $xml);
+
+            //xml内容编码处理
+            $xml = (string)self::iconvStr($xml, 'GBK', 'UTF-8');
+
+            $xmlstring = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $val = (array)json_decode(json_encode($xmlstring), true);
+            return $val;
+        } catch (\Exception $ex) {
+            return [];
+        }
+    }
+
+    /**
+     * 强转字符编码
+     *
+     * @param [type] $str 待转换字符
+     * @param [type] $beforeEncode 字符原编码
+     * @param [type] $afterEncode 字符新编码
+     * @return void
+     */
+    public static function iconvStr($str = '', $beforeEncode, $afterEncode): string
+    {
+        try {
+            $postXml = '';
+            $encode = mb_detect_encoding($str, array("ASCII", "UTF-8", "GB2312", "GBK", "BIG5"));
+            if ($encode == $beforeEncode) {
+                $postXml = iconv($beforeEncode, $afterEncode, $str);
+            } else {
+                $postXml = iconv($encode, $afterEncode, $str);
+            }
+            return $postXml;
+        } catch (\Exception $ex) {
+            return $str;
+        }
+    }
+
+
+    /**
+     * XML编码 - 转为完整xml格式字符
+     * @param  mixed $data 数据
+     * @param  string $root 根节点名
+     * @param  string $item 数字索引的子节点名
+     * @param  string $attr 根节点属性
+     * @param  string $id   数字索引子节点key转换的属性名
+     * @param  string $encoding 数据编码
+     * @return string
+     */
+    public static function arrayToXmlFull($data, $root = 'root', $item = 'item', $attr = '', $id = 'id', $encoding = 'utf-8')
+    {
+        if (is_array($attr)) {
+            $array = [];
+            foreach ($attr as $key => $value) {
+                $array[] = "{$key}=\"{$value}\"";
+            }
+            $attr = implode(' ', $array);
+        }
+
+        $attr = trim($attr);
+        $attr = empty($attr) ? '' : " {$attr}";
+        $xml  = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
+        $xml .= "<{$root}{$attr}>";
+        $xml .= self::arrayToXmlBody($data, $item, $id);
+        $xml .= "</{$root}>";
+
+        return $xml;
+    }
+
+    /**
+     * 数据XML编码 - 转为xml内容键值对字符
+     * @param  mixed  $data 数据
+     * @param  string $item 数字索引时的节点名称
+     * @param  string $id   数字索引key转换为的属性名
+     * @return string
+     */
+    public static function arrayToXmlBody($data, $item, $id)
+    {
+        $xml = $attr = '';
+
+        foreach ($data as $key => $val) {
+            if (is_numeric($key)) {
+                $id && $attr = " {$id}=\"{$key}\"";
+                $key         = $item;
+            }
+            $xml .= "<{$key}{$attr}>";
+            $xml .= (is_array($val) || is_object($val)) ? self::arrayToXmlBody($val, $item, $id) : $val;
+            $xml .= "</{$key}>";
+        }
+
+        return $xml;
     }
 }
