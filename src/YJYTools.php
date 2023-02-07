@@ -1080,7 +1080,7 @@ class YJYTools
      * @param [type] $afterEncode 字符新编码
      * @return void
      */
-    public static function iconvStr($str = '', $beforeEncode, $afterEncode): string
+    public static function iconvStr($str = '', $beforeEncode = '', $afterEncode = ''): string
     {
         try {
             $postXml = '';
