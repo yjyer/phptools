@@ -10,12 +10,12 @@ class YJYTools
     /**
      *
      * 判断是否微信浏览器内打开
-     * @param  string  $userAget 可选参数 用户浏览器useAgent头
+     * @param  string  $userAget 可选参数，用户浏览器useAgent头
      * @return boolean
      */
     public static function isWeixin($userAget = '')
     {
-        if (!$userAget) {
+        if (empty($userAget)) {
             $userAget = $_SERVER['HTTP_USER_AGENT'];
         }
         if (strpos($userAget, 'MicroMessenger') !== false) {
@@ -26,9 +26,10 @@ class YJYTools
 
     /**
      * 判断是否移动端浏览器
+     * @param  string $userAget 可选参数，用户浏览器useAgent头
      * @return boolean
      */
-    public static function isMobile()
+    public static function isMobile($userAget = '')
     {
         // 如果有HTTP_X_WAP_PROFILE则一定是移动设备
         if (isset($_SERVER['HTTP_X_WAP_PROFILE'])) {
@@ -39,45 +40,48 @@ class YJYTools
             return true;
         }
         //userAgent匹配
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $clientkeywords = array(
-                'nokia',
-                'sony',
-                'ericsson',
-                'mot',
-                'samsung',
-                'htc',
-                'sgh',
-                'lg',
-                'sharp',
-                'sie-',
-                'philips',
-                'panasonic',
-                'alcatel',
-                'lenovo',
-                'iphone',
-                'ipod',
-                'blackberry',
-                'meizu',
-                'android',
-                'netfront',
-                'symbian',
-                'ucweb',
-                'windowsce',
-                'palm',
-                'operamini',
-                'operamobi',
-                'openwave',
-                'nexusone',
-                'cldc',
-                'midp',
-                'wap',
-                'mobile',
-            );
-            if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
-                return true;
-            }
+        if (empty($userAget)) {
+            $userAget = $_SERVER['HTTP_USER_AGENT'];
         }
+
+        $clientkeywords = array(
+            'nokia',
+            'sony',
+            'ericsson',
+            'mot',
+            'samsung',
+            'htc',
+            'sgh',
+            'lg',
+            'sharp',
+            'sie-',
+            'philips',
+            'panasonic',
+            'alcatel',
+            'lenovo',
+            'iphone',
+            'ipod',
+            'blackberry',
+            'meizu',
+            'android',
+            'netfront',
+            'symbian',
+            'ucweb',
+            'windowsce',
+            'palm',
+            'operamini',
+            'operamobi',
+            'openwave',
+            'nexusone',
+            'cldc',
+            'midp',
+            'wap',
+            'mobile',
+        );
+        if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($userAget))) {
+            return true;
+        }
+
         // 因为有可能不准确，放到最后判断
         if (isset($_SERVER['HTTP_ACCEPT'])) {
             // 如果只支持wml并且不支持html那一定是移动设备
@@ -91,20 +95,21 @@ class YJYTools
 
     /**
      * 得到手机系统类型
-     *
+     * @param  string $userAget 可选参数，用户浏览器useAgent头
      * @return void
      */
-    public static function getDeviceType()
+    public static function getDeviceType($userAget = '')
     {
         //全部变成小写字母
-        $agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+        if (empty($userAget)) {
+            $userAget = $_SERVER['HTTP_USER_AGENT'];
+        }
         $type  = 'other';
         //分别进行判断
-        if (strpos($agent, 'iphone') || strpos($agent, 'ipad')) {
+        if (strpos($userAget, 'iphone') || strpos($userAget, 'ipad')) {
             $type = 'ios';
         }
-
-        if (strpos($agent, 'android')) {
+        if (strpos($userAget, 'android')) {
             $type = 'android';
         }
         return $type;
@@ -112,18 +117,23 @@ class YJYTools
 
     /**
      * 得到来源
+     * @param  string $userAget 可选参数，用户浏览器useAgent头
      * @return int 来源ID
      */
-    public static function getAgentType()
+    public static function getAgentType($userAget = '')
     {
+        if (empty($userAget)) {
+            $userAget = $_SERVER['HTTP_USER_AGENT'];
+        }
+
         //获取软件类别
         $app_type = 'other';
-        if (strpos($_SERVER['HTTP_USER_AGENT'], 'icroMessenger') !== false) {
+        if (strpos($userAget, 'icroMessenger') !== false) {
             $app_type = 'wx';
         }
 
         //项目APP
-        if (strpos($_SERVER['HTTP_USER_AGENT'], 'YJY_APP') !== false) {
+        if (strpos($userAget, 'YJY_APP') !== false) {
             $app_type = 'yjyApp';
         }
 
@@ -175,22 +185,24 @@ class YJYTools
 
     /**
      * 得到当前浏览器
-     *
+     * @param  string $userAget 可选参数，用户浏览器useAgent头
      * @return string
      */
-    public static function getBrowser()
+    public static function getBrowser($userAget = '')
     {
-        $agent = $_SERVER["HTTP_USER_AGENT"];
-        if (strpos($agent, 'MSIE') !== false || strpos($agent, 'rv:11.0')) //ie11判断
+        if (empty($userAget)) {
+            $userAget = $_SERVER['HTTP_USER_AGENT'];
+        }
+        if (strpos($userAget, 'MSIE') !== false || strpos($userAget, 'rv:11.0')) //ie11判断
         {
             return "ie";
-        } else if (strpos($agent, 'Firefox') !== false) {
+        } else if (strpos($userAget, 'Firefox') !== false) {
             return "firefox";
-        } else if (strpos($agent, 'Chrome') !== false) {
+        } else if (strpos($userAget, 'Chrome') !== false) {
             return "chrome";
-        } else if (strpos($agent, 'Opera') !== false) {
+        } else if (strpos($userAget, 'Opera') !== false) {
             return 'opera';
-        } else if ((strpos($agent, 'Chrome') == false) && strpos($agent, 'Safari') !== false) {
+        } else if ((strpos($userAget, 'Chrome') == false) && strpos($userAget, 'Safari') !== false) {
             return 'safari';
         } else {
             return 'unknown';
@@ -356,15 +368,15 @@ class YJYTools
      *
      * @param  string  $string    明文或密文
      * @param  boolean $isEncode  是否解密，true则为解密 false默认表示加密字符串
-     * @param  string  $key       密钥 默认jjonline
+     * @param  string  $key       密钥 默认yjyerCrypt
      * @param  int     $expiry    密钥有效期 单位：秒 默认0为永不过期
      * @return string 空字符串表示解密失败|密文已过期
      */
-    public static function reversibleCrypt($string, $isEncode = false, $key = 'jjonline', $expiry = 0)
+    public static function reversibleCrypt($string, $isEncode = false, $key = 'yjyerCrypt', $expiry = 0)
     {
         $ckey_length = 4;
         // 密匙
-        $key = md5($key ? $key : 'jjonline');
+        $key = md5($key ? $key : 'yjyerCrypt');
         // 密匙a会参与加解密
         $keya = md5(substr($key, 0, 16));
         // 密匙b会用来做数据完整性验证
@@ -426,7 +438,7 @@ class YJYTools
      * @param  integer $expiry 加密的密文失效时间，0默认表示：永不失效
      * @return string
      */
-    public static function transfer_encrypt($string, $key = 'jjonline', $expiry = 0)
+    public static function transferEncrypt($string, $key = 'yjyerCrypt', $expiry = 0)
     {
         return self::reversibleCrypt($string, false, $key, $expiry);
     }
@@ -444,7 +456,7 @@ class YJYTools
      * @param  string $key    解密秘钥
      * @return string
      */
-    public static function transferDecrypt($string, $key = 'jjonline')
+    public static function transferDecrypt($string, $key = 'yjyerCrypt')
     {
         return self::reversibleCrypt($string, true, $key);
     }
@@ -701,27 +713,27 @@ class YJYTools
     }
 
     /**
-     * Undocumented function
+     * 得到年月日
      * @param [type] $time
      * @return void
      */
-    public static function day_format($time = null)
+    public static function dayFormat($time = null)
     {
         return self::timeFormat($time, 'Y-m-d');
     }
 
     /**
-     * Undocumented function
+     * 得到小时
      * @param [type] $time
      * @return void
      */
-    public static function hour_format($time = null)
+    public static function hourFormat($time = null)
     {
         return self::timeFormat($time, 'H:i');
     }
 
     /**
-     * Undocumented function
+     * 得到分
      * @param [type] $time
      * @return void
      */

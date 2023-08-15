@@ -9,6 +9,8 @@
 composer require yjyer/phptools
 # 更新扩展
 composer update yjyer/phptools
+# 卸载扩展
+composer remove yjyer/phptools
 ```
 
 ## 使用方式
@@ -46,6 +48,11 @@ class Developer extends Base
 
         // 发送模拟GET或POST请求
         YJYHttp::getRequest($url)
+
+        $data=[
+            'user_name' => 'admin',
+            'pwd' => '123'
+        ];
         YJYHttp::postRequest($url,$data)
 
         // 更多请查看对应文件里的方法
